@@ -1,0 +1,191 @@
+url:http://0.0.0.0:8000/api/table
+==================================
+method:GET
+returns: list of all tables in db linked to program
+return structure eg.: {
+  					"tables": [
+    							"abtesting_abexperiment",
+    							"abtesting_abexperimentgroup",
+    							......................
+    							]
+    				}
+---------------------------------------------------------
+method:POST
+returns: specific table details
+post structure(using form data) eg.:{"table":"nd_city"}
+return structure: {
+  					"primary_key": "id",
+  					"fields_name": ["id","name"....],
+  					"foreign_key_tables": {"state_id": "nd_state"},
+  					"foreign_keys": ["state_id"],
+  					"table_id": 77442,
+  					"fields_info":{
+  									"state_id": {
+  					    							"data_type": "integer",
+  					    							"is_nullable": "NO"
+  					  							},
+  					  				"name": {
+  					  				 			"data_type": "character varying",
+  					  				 			"is_nullable": "NO"
+  					  				}
+  								},
+  					"table_name": "nd_city"
+				}
+
+----------------------------------------------------------------
+method:POST
+returns: details of all table associated with table we had query in previous API
+post structure (using form data) eg.:{"table":"all"}
+return structure: {
+					nd_resident:{........................},
+					nd_state:{............................},
+					nd_city:{
+  							"primary_key": "id",
+  							"fields_name": ["id","name"....],
+  							"foreign_key_tables": {"state_id": "nd_state"},
+  							"foreign_keys": ["state_id"],
+  							"table_id": 77442,
+  							"fields_info":{
+  											"state_id": {
+  					    							"data_type": "integer",
+  					    							"is_nullable": "NO"
+  					  							},
+  					  						"name": {
+  					  				 			"data_type": "character varying",
+  					  				 			"is_nullable": "NO"
+  					  							}
+  											},
+  							"table_name": "nd_city"
+							},
+					...........................
+					...........................
+				}			
+
+url:http://0.0.0.0:8000/api/data
+==================================
+method:post
+structure:
+     
+EG: 1:
+        {
+         "table":"nd_resident",
+         "distinct":"true",
+         "columns":["id","name","city_id"],
+         "where":
+            {
+                "0":["id","=","61422"],
+                "1":["OR"],
+                "2":["name","=","'mevin'"],
+                "3":["OR"],
+                "4":["name","LIKE","'%nick%'"],
+                "5":["OR"],
+                "6":["id","BETWEEN","61420","61430"],
+                "7":["OR"],
+                "8":["name","IN","'nick'","'shadman'","'mevin'","'devin'","'bindu'","'aseem'"],
+                "9":["AND"],
+                "10":["name","NOT IN","'raiza'","'nikhila'","'gautam'","'vinyas'"]
+            } ,
+            "limit":"'3'",
+            "offset":"'2'"
+          }
+
+Generated Sql query:
+SELECT DISTINCT id, name, city_id FROM nd_resident WHERE id = 61422 OR name = 'mevin' OR name LIKE '%nick%' OR id BETWEEN 61420 AND 61430 OR name IN ('nick','shadman','mevin','devin','bindu','aseem') AND name NOT IN ('raiza','nikhila','gautam','vinyas') LIMIT '3' OFFSET '2'; 
+
+result: [
+  {
+    "city_id": 5,
+    "id": 61424,
+    "name": "helloq`"
+  },
+  {
+    "city_id": 5,
+    "id": 61422,
+    "name": "shadman"
+  },
+  {
+    "city_id": 5,
+    "id": 61420,
+    "name": "test"
+  }
+]
+
+
+
+EG(with groupby): 2:
+      
+      {
+    "table":"nd_resident",
+    "distinct":"false",
+    "columns":["id","name","city_id",["count","id"]],
+    "where":
+            {
+                
+                "0":["name","=","'mevin'"],
+                "1":["OR"],
+                "2":["name","LIKE","'%nick%'"],
+                "3":["OR"],
+                "4":["name","IN","'nick'","'shadman'","'mevin'","'devin'","'bindu'","'aseem'"]
+                
+            } ,
+    "groupby":["id","name"],
+    "limit":"'3'",
+    "offset":"'2'"
+}
+
+Generated Sql query:
+SELECT id, name, city_id, COUNT(id) FROM nd_resident WHERE name = 'mevin' OR name LIKE '%nick%' OR name IN ('nick','shadman','mevin','devin','bindu','aseem') GROUP BY id,name LIMIT '3' OFFSET '2';
+
+
+result : [
+  {
+    "city_id": 3,
+    "count": 1,
+    "id": 60121,
+    "name": "N.C.Panicker"
+  },
+  {
+    "city_id": 1,
+    "count": 1,
+    "id": 38708,
+    "name": "Manick Kalburgi"
+  },
+  {
+    "city_id": 5,
+    "count": 1,
+    "id": 61421,
+    "name": "shadman"
+  }
+]
+
+EG (multiple having conditions)3:
+
+{
+    "table":"nd_resident",
+    "distinct":"false",
+    "columns":["id","name","city_id",["count","id"]],
+    "where":
+            {
+                
+                "0":["name","=","'mevin'"],
+                "1":["OR"],
+                "2":["name","LIKE","'%nick%'"],
+                "3":["OR"],
+                "4":["name","IN","'nick'","'shadman'","'mevin'","'devin'","'bindu'","'aseem'"]
+                
+            } ,
+   "groupby":["id","name"],
+   "having":
+            {
+              "0":[["count","id"],">","5"],
+              "1":["AND"],
+              "2":[["maximum","id"],">","10"]
+            },
+   "limit":"'3'",
+   "offset":"'2'"
+}
+
+Generated Sql query:
+SELECT id, name, city_id, COUNT(id) FROM nd_resident WHERE name = 'mevin' OR name LIKE '%nick%' OR name IN ('nick','shadman','mevin','devin','bindu','aseem') GROUP BY id,name HAVING COUNT(id)>5 AND MAX(id)>10 LIMIT '3' OFFSET '2';
+
+result:[]        

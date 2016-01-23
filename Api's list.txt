@@ -1,0 +1,62 @@
+url:http://0.0.0.0:8000/api/table
+==================================
+method:GET
+returns: list of all tables in db linked to program
+return structure eg.: {
+  					"tables": [
+    							"abtesting_abexperiment",
+    							"abtesting_abexperimentgroup",
+    							......................
+    							]
+    				}
+---------------------------------------------------------
+method:POST
+returns: specific table details
+post structure(using form data) eg.:{table:nd_city}
+return structure: {
+  					"primary_key": "id",
+  					"fields_name": ["id","name"....],
+  					"foreign_key_tables": {"state_id": "nd_state"},
+  					"foreign_keys": ["state_id"],
+  					"table_id": 77442,
+  					"fields_info":{
+  									"state_id": {
+  					    							"data_type": "integer",
+  					    							"is_nullable": "NO"
+  					  							},
+  					  				"name": {
+  					  				 			"data_type": "character varying",
+  					  				 			"is_nullable": "NO"
+  					  				}
+  								},
+  					"table_name": "nd_city"
+				}
+
+----------------------------------------------------------------
+method:POST
+returns: details of all table associated with table we had query in previous API
+post structure (using form data) eg.:{table:all}
+return structure: {
+					nd_resident:{........................},
+					nd_state:{............................},
+					nd_city:{
+  							"primary_key": "id",
+  							"fields_name": ["id","name"....],
+  							"foreign_key_tables": {"state_id": "nd_state"},
+  							"foreign_keys": ["state_id"],
+  							"table_id": 77442,
+  							"fields_info":{
+  											"state_id": {
+  					    							"data_type": "integer",
+  					    							"is_nullable": "NO"
+  					  							},
+  					  						"name": {
+  					  				 			"data_type": "character varying",
+  					  				 			"is_nullable": "NO"
+  					  							}
+  											},
+  							"table_name": "nd_city"
+							},
+					...........................
+					...........................
+				}			
